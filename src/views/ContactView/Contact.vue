@@ -1,38 +1,32 @@
 <template>
-<ContactList></ContactList>
+  <AddButton></AddButton>
+  <ContactList :apiData="apiData.data"></ContactList>
 </template>
 
 <script>
+import AddButton from './components/AddButton'
 import ContactList from './components/ContactList'
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { computed, onMounted } from 'vue'
+import { useStore } from 'vuex';
+
 export default {
-  name: 'App',
+  name: 'contactView',
   components: {
     ContactList,
+    AddButton,
   },
   setup() {
-    const apiData = ref([]);
+    const store = useStore();
 
-    const fetchDataFromApi = async () => {
-      try {
-        const response = await axios.get('https://reqres.in/api/users?page=1');
-        console.log(response.data)
-        apiData.value = response.data;
-        localStorage.setItem('apiData', JSON.stringify(response.data));
-      } catch (error) {
-        // just in case the API has a requestLimit like MarvelApi Lol
+    const apiData = computed(() => store.getters.getApiData);
 
-        console.error('Error fetching data:', error);
-        console.error('Used backup due to Error:', error);
-        apiData.value = JSON.parse(localStorage.getItem('apiData'))
-      }
+    const fetchDataFromApi = () => {
+      store.dispatch('fetchDataFromApi');
     };
 
-    onMounted(fetchDataFromApi);
-
+    onMounted(fetchDataFromApi)
     return {
-      apiData
+      apiData,
     };
   }
 };
