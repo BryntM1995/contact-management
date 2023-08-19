@@ -5,46 +5,41 @@ import axios from "axios";
 const store = createStore({
   state() {
     return {
-      apiData: {},
-      tasks: [],
+      user:{
+        userName:"",
+        userLastName:"",
+        userPassword:"",
+        userEmail:"",
+        isUserLoggedIn: false,
+        userContacts: [],
+        userTasks: [],
+      },
+      users:[],
     };
   },
   mutations: {
-    setApiData(state, apiData) {
-      state.apiData = apiData;
+    setNewUser(state, data) {
+      state.user = localStorage.getItem(data);
     },
-    addUser(state, newUser) {
-      state.apiData.push(newUser)
-      localStorage.setItem("apiData", JSON.stringify(state.apiData));
+    addNewUser(state, newUser) {
+      state.users.push(newUser);
+      localStorage.setItem(state.user.userEmail, JSON.stringify(newUser))
     },
-    setTasks(state, tasks) {
-      state.tasks = tasks;
-    },
+    setApiContacts(state, apiData){
+      apiData.data.forEach((element) =>{
+        state.user.userContacts.push(element)
+      })
+    }
   },
   actions: {
     async fetchDataFromApi(context) {
       try {
-        let localApiData =  JSON.parse(localStorage.getItem("apiData"))
-        if (localApiData) {
-          context.commit("setApiData", localApiData);
-          console.log(localApiData)
-        }
-        else{
-          const response = await axios.get(
-            "https://reqres.in/api/users?page=1"
-          );
-          context.commit("setApiData", response.data);
-          localStorage.setItem("apiData", JSON.stringify(response.data));
-        }
-      } catch (error) {
-        // just in case the API has a requestLimit like MarvelApi Lol
-
-        console.error("Error fetching data:", error);
-        console.error("Backup was used due to Error:", error);
-        context.commit(
-          "setApiData",
-          JSON.parse(localStorage.getItem("apiData"))
+        const response = await axios.get(
+          "https://reqres.in/api/users?page=1"
         );
+        this.state.user.isUserLoggedIn && context.commit("setApiContacts", response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
     },
   },
@@ -52,8 +47,11 @@ const store = createStore({
     getApiData(state) {
       return state.apiData;
     },
-    getAllTasks(state) {
-      return state.tasks;
+    getAllUsers(state) {
+      return state.users;
+    },
+    getCurrentUser(state) {
+      return state.user;
     },
   },
 });

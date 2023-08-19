@@ -1,77 +1,83 @@
 <template>
-  <nav class="navbar navbar-expand-lg bg-primary mb-3 border-bottom shadow-lg border-black ">
-    <div class="container-fluid">
-      <a class="navbar-brand border-end pe-2 text-light fw-bold ms-2" href="#">TaskAgenda</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <router-link :to="{name:'contact'}" class="nav-link  border-end pe-2 text-light links fw-semibold" aria-current="page"
-              href="#"><i class="bi bi-person-lines-fill"></i> ContactList</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link :to="{name:'task'}" class="nav-link  border-end pe-2 text-light links fw-semibold"
-              aria-current="page" href="#"><i class="bi bi-list-task"></i> TaskList</router-link>
-          </li>
-        </ul>
+  <div v-if="loggedUser === undefined">
+    <nav class="navbar navbar-expand-lg bg-primary mb-3 border-bottom shadow-lg border-black ">
+      <div class="container-fluid">
+        <a class="navbar-brand border-end pe-2 text-light fw-bold ms-2" href="#">TaskAgenda</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <router-link :to="{ name: 'contact' }" class="nav-link  border-end pe-2 text-light links fw-semibold"
+                aria-current="page" href="#"><i class="bi bi-person-lines-fill"></i> ContactList</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link :to="{ name: 'task' }" class="nav-link  border-end pe-2 text-light links fw-semibold"
+                aria-current="page" href="#"><i class="bi bi-list-task"></i> TaskList</router-link>
+            </li>
+          </ul>
+        </div>
       </div>
+    </nav>
+    <div class="m-3 greetingContainer">
+      <h3 class=""> <i class="bi bi-moon-stars"></i> My Day</h3>
+      <h5 class="text-body-tertiary">{{ greetingMessage }}</h5>
     </div>
-  </nav>
-  <div class="m-3 greetingContainer">
-    <h3 class=""> <i class="bi bi-moon-stars"></i> My Day</h3>
-    <h5 class="text-body-tertiary">{{ greetingMessage }}</h5>
   </div>
   <router-view></router-view>
   <Footer></Footer>
 </template>
 
-<script>
+<script setup>
 import Footer from './components/Footer.vue';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, defineComponent } from 'vue';
 import moment from 'moment';
+import { useStore } from 'vuex'
 
-export default {
-  name: 'App',
+
+defineComponent({
   components: {
     Footer,
   },
-  setup() {
-    const currentTime = ref(moment().format('HH:mm:ss'));
+})
 
-    const greetingMessage = computed(() => {
-      const currentHour = moment().hour();
-      let greeting = '';
+const store = useStore()
+const loggedUser = store.getters['getCurrentUser']
+const currentTime = ref(moment().format('HH:mm:ss'));
 
-      if (currentHour >= 5 && currentHour < 12) {
-        greeting = 'Good Morning';
-      } else if (currentHour >= 12 && currentHour < 18) {
-        greeting = 'Good Afternoon';
-      } else {
-        greeting = 'Good Night';
-      }
+const greetingMessage = computed(() => {
+  const currentHour = moment().hour();
+  let greeting = '';
 
-      return `${greeting}, It's ${currentTime.value}`;
-    });
+  if (currentHour >= 5 && currentHour < 12) {
+    greeting = 'Good Morning';
+  } else if (currentHour >= 12 && currentHour < 18) {
+    greeting = 'Good Afternoon';
+  } else {
+    greeting = 'Good Night';
+  }
 
-    onMounted(() => {
-      setInterval(() => {
-        currentTime.value = moment().format('MMMM Do YYYY, h:mm a');
-      }, 1000);
-    });
+  return `${greeting}, ${loggedUser.userName}. It's ${currentTime.value}`;
+});
 
-    return {
-      greetingMessage,
-    };
-  },
-};
+onMounted(() => {
+  setInterval(() => {
+    currentTime.value = moment().format('MMMM Do YYYY, h:mm a');
+  }, 1000);
+});
+
+
 </script>
 
 <style scoped>
 .links {
   transition: 0.9s;
+}
+
+* {
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 .links:hover {
@@ -81,13 +87,15 @@ export default {
 }
 
 body {
-  background-color: rgb(243, 158, 158);
+  background-color: rgb(231, 10, 10);
 }
+
 
 .greetingContainer {
   border-bottom: solid black 1px;
 }
-.router-link-active{
+
+.router-link-active {
   background-color: blueviolet;
 }
 </style>
