@@ -1,36 +1,9 @@
 <template>
-    <div class="container">
-        <div class="row row-cols-3">
-            <div class="col " v-for="person in apiData" :key="person.id">
-                <div class="card mb-3" style="max-width: 540px;">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <img :src="person.avatar"
-                                class="img-fluid rounded-start border border-start-0 m-2 rounded-circle border border-4  border-primary-subtle"
-                                alt="Avatar">
-                        </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <h5 class="card-title text-truncate" :title="person.first_name"><i class="bi bi-person-vcard-fill"></i> {{ `${person.first_name}
-                                                                    ${person.last_name}` }}</h5>
-                                <p class="card-text text-truncate" :title="person.email"><i class="bi bi-envelope-fill"></i>{{ ` Email: ${person.email}` }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<h1>hello</h1>
 </template>
 
-<script>
-import defineProps from 'vue';
+<script setup>
 
-export default {
-    props: {
-        apiData: Array,
-    },
-}
 </script>
 
 <style>

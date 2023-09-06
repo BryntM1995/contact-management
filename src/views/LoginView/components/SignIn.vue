@@ -1,7 +1,7 @@
 <template>
-    <form>
+    <div>
         <div class="mb-3 border-bottom border-2">
-            <label class="pb-3 multi-colored fs-3 text fw-bold">Sign in <i class="bi bi-envelope-check"></i></label>
+            <h2 class="pb-3 multi-colored fs-3 text fw-bold text-center">Sign in <i class="bi bi-envelope-check"></i></h2>
         </div>
         <div class="mb-3">
             <label class="form-label"><i class="bi bi-person-vcard"></i> First Name</label>
@@ -15,49 +15,93 @@
             <label class="form-label"><i class="bi bi-at"></i> Email address</label>
             <input v-model="userEmailField" type="email" class="form-control" aria-describedby="emailHelp"
                 placeholder="Ex: Example@Vue.com" required>
+            <label v-if="!isEmailValidated" class="form-label text-danger">Please, introduce a valid email.</label>
+            <label v-if="thisEmailexits" class="form-label text-danger">This email was already used</label>
         </div>
         <div class="mb-3">
             <label class="form-label"><i class="bi bi-fingerprint"></i> Password</label>
             <input v-model="passwordField" type="password" class="form-control" placeholder="Ex: Password123" required>
+            <label v-if="!isPasswordValidated" class="form-label text-danger">Password must have more than 5 digits</label>
         </div>
         <div class="mb-3">
             <label class="form-label"><i class="bi bi-fingerprint"></i> Confirm Password</label>
-            <input v-model="confirmationPasswordField" type="password" class="form-control" placeholder="Ex: Password123" required>
+            <input v-model="confirmationPasswordField" type="password" class="form-control" placeholder="Ex: Password123"
+                required>
+            <label v-if="!isPasswordValidated" class="form-label text-danger">Password must have more than 5 digits</label>
+
         </div>
-        <button type="submit" class="btn btn-primary" @click="createAccount">Submit</button>
-    </form>
+        <button type="submit" class="btn btn-primary" :disabled="!isPasswordConfirmed"
+            @click="createAccount">Submit</button>
+        <label v-if="allFieldsData" class="form-label text-danger">Please fill all fields.</label>
+    </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const store = useStore()
-let firstName = ref('')
-let lastName = ref('')
-let passwordField = ref('')
-let confirmationPasswordField = ref('')
-let userEmailField = ref('')
-let isLoggedIn = ref(false)
+const store = useStore();
+
+let firstName = ref('');
+let lastName = ref('');
+let passwordField = ref('');
+let confirmationPasswordField = ref('');
+let userEmailField = ref('');
+let allFieldsData = ref(false)
+let isEmailValidated = ref(true)
+let isPasswordValidated = ref(true)
+let thisEmailexits = ref(false)
+
+const isPasswordConfirmed = computed(() => {
+    return passwordField.value === confirmationPasswordField.value
+        && passwordField.value !== ''
+        && confirmationPasswordField.value !== ''
+});
 
 function createAccount() {
+    areAllfieldsFilled()
+    toValidateEmail()
+    toValidatePassword()
+    toValidateEmailExistance()
+    !allFieldsData.value && isEmailValidated.value && isPasswordValidated.value && !thisEmailexits.value && submitData()
+}
+function submitData() {
     const newUser = {
-        userName: firstName.value,
-        userLastName: lastName.value,
+        userName: firstName.value.toLocaleLowerCase().trim(),
+        userLastName: lastName.value.toLocaleLowerCase().trim(),
         userPassword: passwordField.value,
-        userEmail: userEmailField.value,
+        userEmail: userEmailField.value.toLocaleLowerCase().trim(),
         isUserLoggedIn: true,
         userContacts: [],
         userTasks: [],
-    }
-    store.commit('addNewUser', newUser)
-    store.commit('setNewUser', newUser.userEmail)
-    router.push({ name: 'contact' })
+    };
+    store.dispatch('signNewUser', newUser);
+    store.dispatch('setAllUsers', newUser);
+    router.push({ name: 'contact' });
 }
 
+function areAllfieldsFilled() {
+    const formData = [firstName.value,
+    lastName.value, passwordField.value,
+    confirmationPasswordField.value,
+    userEmailField.value]
 
+    allFieldsData.value = formData.includes('');
+}
+function toValidateEmail() {
+    isEmailValidated.value = userEmailField.value.includes('@')
+}
+function toValidateEmailExistance() {
+  const allUsers =  store.getters.getUsers;
+  const user = allUsers.find(x => x.userEmail === userEmailField.value)
+  console.log(user)
+  thisEmailexits.value = user.userEmail === userEmailField.value;
+}
+function toValidatePassword() {
+    isPasswordValidated.value = passwordField.value.length > 5
+}
 </script>
 
 <style scoped>
@@ -65,7 +109,7 @@ function createAccount() {
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
-    background-image: linear-gradient(45deg, #ff0000, #1c20da, #f9ec19);
+    background-image: linear-gradient(to right, #ff0000, #1c20da, #f9ec19, #1c20da);
 }
 
 .form-control:focus {

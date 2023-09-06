@@ -3,14 +3,15 @@
     <TaskList> </TaskList>
 </template>
 
-<script>
-    import TaskList from './components/TaskList.vue'
-    import AddButton from './components/AddButton'
-    export default {
-        name:'task',
-        components:{
-            TaskList,
-            AddButton
-        },
-    }
+<script setup>
+import TaskList from './components/TaskList.vue'
+import AddButton from './components/AddButton'
+import { defineComponent  } from 'vue'
+defineComponent({
+    components: {
+        TaskList,
+        AddButton
+    },
+})
+
 </script>

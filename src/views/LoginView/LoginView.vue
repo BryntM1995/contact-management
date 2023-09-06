@@ -4,7 +4,7 @@
             <h1 class="text-light bg-transparent text-center fw-bolder pt-5"> Ready? Getting Started</h1>
         </div>
         <div class="container-fluid w-25 border border-primary p-5 border-4 rounded bg-trasparent mt-5">
-           
+
             <LogIn v-if="!isNewAccount" />
             <SignIn v-if="isNewAccount" />
             <div class="mt-3 form-check">
@@ -33,7 +33,7 @@ let isNewAccount = ref(false);
 </script>
 
 <style scoped >
-.loginViewContainer{
+.loginViewContainer {
     background-repeat: round;
     background-attachment: fixed;
     background-size: cover;

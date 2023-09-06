@@ -1,8 +1,9 @@
 <template>
-  <div v-if="loggedUser === undefined">
-    <nav class="navbar navbar-expand-lg bg-primary mb-3 border-bottom shadow-lg border-black ">
+  <div v-if="loggedUser.isUserLoggedIn">
+    <nav class="navbar navbar-expand-lg bg-dark mb-3 border-bottom shadow-lg border-black ">
       <div class="container-fluid">
-        <a class="navbar-brand border-end pe-2 text-light fw-bold ms-2" href="#">TaskAgenda</a>
+        <a class="navbar-brand border-end pe-2 fs-2 fw-bold ms-2 multicolored" href="#">TK<i
+            class=" ms-2 bi bi-journal-richtext"></i></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
           aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -10,20 +11,21 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <router-link :to="{ name: 'contact' }" class="nav-link  border-end pe-2 text-light links fw-semibold"
+              <router-link :to="{ name: 'contact' }" class="nav-link   pe-2 text-light links fw-semibold"
                 aria-current="page" href="#"><i class="bi bi-person-lines-fill"></i> ContactList</router-link>
             </li>
             <li class="nav-item">
-              <router-link :to="{ name: 'task' }" class="nav-link  border-end pe-2 text-light links fw-semibold"
-                aria-current="page" href="#"><i class="bi bi-list-task"></i> TaskList</router-link>
+              <router-link :to="{ name: 'task' }" class="nav-link   pe-2 text-light links fw-semibold" aria-current="page"
+                href="#"><i class="bi bi-list-task"></i> TaskList</router-link>
             </li>
           </ul>
+          <UserDropdown class="UserDropdown" />
         </div>
       </div>
     </nav>
     <div class="m-3 greetingContainer">
       <h3 class=""> <i class="bi bi-moon-stars"></i> My Day</h3>
-      <h5 class="text-body-tertiary">{{ greetingMessage }}</h5>
+      <h5 class="text-body-tertiary">{{ `Hello ${loggedUser.userName}! ${greetingMessage}` }}</h5>
     </div>
   </div>
   <router-view></router-view>
@@ -32,6 +34,7 @@
 
 <script setup>
 import Footer from './components/Footer.vue';
+import UserDropdown from './components/UserDropdown.vue';
 import { ref, onMounted, computed, defineComponent } from 'vue';
 import moment from 'moment';
 import { useStore } from 'vuex'
@@ -40,12 +43,14 @@ import { useStore } from 'vuex'
 defineComponent({
   components: {
     Footer,
+    UserDropdown
   },
 })
 
 const store = useStore()
-const loggedUser = store.getters['getCurrentUser']
+const loggedUser = computed(() => store.getters.getUser)
 const currentTime = ref(moment().format('HH:mm:ss'));
+
 
 const greetingMessage = computed(() => {
   const currentHour = moment().hour();
@@ -59,7 +64,7 @@ const greetingMessage = computed(() => {
     greeting = 'Good Night';
   }
 
-  return `${greeting}, ${loggedUser.userName}. It's ${currentTime.value}`;
+  return `${greeting}, It's ${currentTime.value}`;
 });
 
 onMounted(() => {
@@ -77,12 +82,11 @@ onMounted(() => {
 }
 
 * {
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 .links:hover {
-  background-color: #fff;
-  color: orangered !important;
+  color: red !important;
 
 }
 
@@ -96,6 +100,17 @@ body {
 }
 
 .router-link-active {
-  background-color: blueviolet;
+  color: #f9ec19 !important;
+}
+
+.UserDropdown {
+  margin-left: 65%;
+}
+
+.multicolored {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #fff, #f9ec19, #fff);
 }
 </style>
